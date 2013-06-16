@@ -149,10 +149,12 @@
 			      				url: "http://ws.geonames.org/findNearestIntersectionJSON?lat="+data.placemarks[distances[index][1]].coordinates[1]+"&lng="+data.placemarks[distances[index][1]].coordinates[0],
 			      				dataType: 'jsonp',
 			      				success: function(intersection) {
-			      					if (c2g_obj.intersection_cache[data.placemarks[distances[index][1]].coordinates[1]] == undefined) {
-			      						c2g_obj.intersection_cache[data.placemarks[distances[index][1]].coordinates[1]] = {};
-			      					}
-			      					c2g_obj.intersection_cache[data.placemarks[distances[index][1]].coordinates[1]][data.placemarks[distances[index][1]].coordinates[0]] = {street1: intersection.intersection.street1, street2: intersection.intersection.street2, accessed: new Date()};
+			      					if (intersection != undefined && intersection.intersection != undefined) {
+				      					if (c2g_obj.intersection_cache[data.placemarks[distances[index][1]].coordinates[1]] == undefined) {
+				      						c2g_obj.intersection_cache[data.placemarks[distances[index][1]].coordinates[1]] = {};
+				      					}
+				      					c2g_obj.intersection_cache[data.placemarks[distances[index][1]].coordinates[1]][data.placemarks[distances[index][1]].coordinates[0]] = {street1: intersection.intersection.street1, street2: intersection.intersection.street2, accessed: new Date()};
+											}
 			      				}
 			      			});
 			      		}
