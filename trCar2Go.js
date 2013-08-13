@@ -123,6 +123,11 @@
 		      		var collection = [];
 		      		collection.length = c2g_obj.num_vehicles*1+2; // have a couple waiting in reserve in case cars leave
 		      		
+		      		// make sure we're not asking for more data than exists (distances may have no elements during a car2go service outage)
+		      		if (collection.length > distances.length) {
+		      			collection.length = distances.length;
+		      		}
+		      		
 		      		c2g_obj.vehicles = []; // clear vehicle list
 		      		
 		      		jQuery.each(collection, function(index) {
