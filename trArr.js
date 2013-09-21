@@ -540,7 +540,7 @@ function trArr(input_params) {
 											}
 										}
 								});
-							}, 2*60*60*1000);
+							}, 30*60*1000);
 							
 							/* 3 ways to get display interval:
 							
