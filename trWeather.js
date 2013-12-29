@@ -43,7 +43,7 @@
 				}
 				
 				this.weather_is_current = function() {
-					if (weather.timestamp == undefined) {
+					if (typeof weather.timestamp == "undefined") {
 						// haven't gotten a forecast yet
 						return false;
 					}
@@ -79,12 +79,20 @@
 						dataType: "json",
 
 						success: function(data){
-							weather.api_key = data.api_key;
-							weather.update_forecast();				
-							setInterval(function() {weather.update_forecast()}, 5*60*1000); // update every five minutes
+							if (data.api_key) {
+								weather.api_key = data.api_key;
+								weather.update_forecast();				
+								setInterval(function() {weather.update_forecast()}, 5*60*1000); // update every five minutes
+							} else {
+								// try later
+								setTimeout(function() {
+									weather.get_api_key();
+								},5*60*1000);
+							}
 						},
 						
 						error: function() {
+							// try later
 							setTimeout(function() {
 								weather.get_api_key();
 							},5*60*1000);
