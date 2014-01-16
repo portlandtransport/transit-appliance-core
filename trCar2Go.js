@@ -151,7 +151,7 @@
 		      				c2g_obj.cache_miss_count++;
 		      				// populate intersection cache
 			      			jQuery.ajax({
-			      				url: "http://ws.geonames.org/findNearestIntersectionJSON?lat="+data.placemarks[distances[index][1]].coordinates[1]+"&lng="+data.placemarks[distances[index][1]].coordinates[0],
+			      				url: "http://api.geonames.org/findNearestIntersectionJSON?lat="+data.placemarks[distances[index][1]].coordinates[1]+"&lng="+data.placemarks[distances[index][1]].coordinates[0]+"&username=transitappliance",
 			      				dataType: 'jsonp',
 			      				success: function(intersection) {
 			      					if (intersection != undefined && intersection.intersection != undefined) {
