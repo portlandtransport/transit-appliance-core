@@ -56,8 +56,8 @@ function trStopCache() {
 			
 		
 		// get the stop info
-		//var service_url = "http://transitappliance.couchone.com/"+stops_db+"/"+stop.agency+":"+stop.stop_id;
-		var service_url = "http://transitappliance.couchone.com/" + 
+		//var service_url = "http://transitappliance.iriscouch.com/"+stops_db+"/"+stop.agency+":"+stop.stop_id;
+		var service_url = "http://transitappliance.iriscouch.com/" + 
 		stops_db + "/_design/get/_view/by_id?key=%22"+stop.agency+
 		":"+stop.stop_id+"%22";
 		var alternate_url = "https://transitappliance.cloudant.com/" + 

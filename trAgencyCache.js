@@ -48,7 +48,7 @@ function trAgencyCache() {
 		
 		//this.cache[agency] = false;
 		// get the stop info
-		var service_url = "http://transitappliance.couchone.com/agencies_production/"+agency;
+		var service_url = "http://transitappliance.iriscouch.com/agencies_production/"+agency;
 		var alternate_url = "https://transitappliance.cloudant.com/agencies_production/"+agency;
 		if (Math.random() > 0.5) {
 			service_url = alternate_url;
