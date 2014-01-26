@@ -64,10 +64,12 @@
 						url: "https://api.forecast.io/forecast/"+weather.api_key+"/"+options.lat+","+options.lng,
 						dataType: "jsonp",
 						success: function(data){
-							weather.summary = data.minutely.summary;
-							weather.temperature = Math.floor(data.currently.temperature + 0.5)+"&deg;";
-							weather.icon = data.minutely.icon;
-							weather.timestamp = new Date();
+							if (data.minutely) {
+								weather.summary = data.minutely.summary;
+								weather.temperature = Math.floor(data.currently.temperature + 0.5)+"&deg;";
+								weather.icon = data.minutely.icon;
+								weather.timestamp = new Date();
+							}
 						}
 
 					});
