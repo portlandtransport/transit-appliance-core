@@ -573,7 +573,7 @@ function trArr(input_params) {
 								});
 							}
 							
-							// allow 5 seconds for initialization
+							// allow 10 seconds for initialization
 							
 							setTimeout(function() {
 	
@@ -608,7 +608,7 @@ function trArr(input_params) {
 									});
 								}, refresh_interval);
 								
-							},5*1000);
+							},10*1000);
 							
 						},0.5*1000);
 					});
