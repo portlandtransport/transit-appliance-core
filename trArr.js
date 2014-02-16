@@ -245,7 +245,8 @@ function trArr(input_params) {
 		jQuery('body').prepend('<div id="arrivals_log_area"></div>');
 	}
 	
-	this.version = "1.12";
+	this.version = "1.13";
+	// v1.13 - first introduction of jquery.jsonp in TriMet service
 	this.assets_dir = input_params.assetsDir || "assets";
 	
 	timezoneJS.timezone.zoneFileBasePath = this.assets_dir + "/tz";

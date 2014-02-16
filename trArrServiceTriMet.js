@@ -102,12 +102,14 @@ function trArrTriMetUpdater(service_requests,arrivals_object) {
 		}
 
 		try {
-			jQuery.ajax({
+			jQuery.jsonp({
 			  url: updater.url,
+			  callbackParameter: "callback",
 			  dataType: 'jsonp',
 			  cache: false,
 			  error: function(data) {
 			  	updater.update_connection_health(false);
+			  	throw "TriMet Arrivals Error";
 			  },
 			  success: function(data) {
 			  	updater.update_connection_health(true);
