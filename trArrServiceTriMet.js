@@ -31,9 +31,27 @@ function trArrServiceTriMetCreateUpdaters(arrivals_object, service_requests, upd
 
 }
 
+function trArrTriMetSupportsCors() {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+    // Supports CORS
+    return true;
+  } else if (typeof XDomainRequest != "undefined") {
+    // IE
+    return true;
+  }
+  return false;
+}
+
 function trArrTriMetUpdater(service_requests,arrivals_object) {
 	
 	var updater = this;
+	
+	updater.access_method = "jsonp";
+	
+	if (trArrTriMetSupportsCors()) {
+		updater.access_method = "json";
+	}
 	
 	// every updater object needs to maintain a queue
 	this.arrivals_queue = [];
@@ -101,88 +119,84 @@ function trArrTriMetUpdater(service_requests,arrivals_object) {
 			"75": 5
 		}
 
-		try {
-			jQuery.jsonp({
-			  url: updater.url,
-			  callbackParameter: "callback",
-			  dataType: 'jsonp',
-			  cache: false,
-			  error: function(data) {
-			  	updater.update_connection_health(false);
-			  	throw "TriMet Arrivals Error";
-			  },
-			  success: function(data) {
-			  	updater.update_connection_health(true);
-			  	var local_queue = [];
-			  	var update_time = localTime().getTime();
-			  	if (data.resultSet.arrival) {
-						for (var i = 0; i < data.resultSet.arrival.length; i++){ 
-							var arrival = data.resultSet.arrival[i];
-							if (arrival.route == "193" || arrival.route == "194") {
-								continue; // Streetcar is handled by the NextBus adapter, so ignore TriMet info
-							}
-							if (request_object[arrival.locid] == undefined || request_object[arrival.locid][arrival.route] == undefined) {
-								continue; // don't process an arrival if it wasn't in the stop list
-							}
-						  var entry = new transitArrival();
-						  var arrival_time_raw = "";
-		
-							if (arrival.status == "scheduled") {
-								entry.type = "scheduled";
-								arrival_time_raw = arrival.scheduled;
-							} else {
-								entry.type = "estimated";
-								arrival_time_raw = arrival.estimated;
-							}
-							
-					    var year = arrival_time_raw.slice(0, 4);
-					    var mo = Number(arrival_time_raw.slice(5,7)) - 1; // Jan is 0 in JS
-					    var day = arrival_time_raw.slice(8, 10)
-					    var hour = arrival_time_raw.slice(11, 13);
-					    var min = arrival_time_raw.slice(14, 16);
-					    // Must be number or will be interpreted as tz
-					    var sec = Number(arrival_time_raw.slice(17,18));
-					    // Should get TriMet's TZ from GTFS agency defn, in case Oregon makes its own time
-					    // (e.g. America/Portland)
-					    var entry_date = new tzDate(year, mo, day, hour, min, sec, 'America/Los_Angeles');
-		
+
+		jQuery.ajax({
+		  url: updater.url,
+		  dataType: updater.access_method,
+		  cache: false,
+		  error: function(data) {
+		  	updater.update_connection_health(false);
+		  	throw "TriMet Arrivals Error";
+		  },
+		  success: function(data) {
+		  	updater.update_connection_health(true);
+		  	var local_queue = [];
+		  	var update_time = localTime().getTime();
+		  	if (data.resultSet.arrival) {
+					for (var i = 0; i < data.resultSet.arrival.length; i++){ 
+						var arrival = data.resultSet.arrival[i];
+						if (arrival.route == "193" || arrival.route == "194") {
+							continue; // Streetcar is handled by the NextBus adapter, so ignore TriMet info
+						}
+						if (request_object[arrival.locid] == undefined || request_object[arrival.locid][arrival.route] == undefined) {
+							continue; // don't process an arrival if it wasn't in the stop list
+						}
+					  var entry = new transitArrival();
+					  var arrival_time_raw = "";
+	
+						if (arrival.status == "scheduled") {
+							entry.type = "scheduled";
+							arrival_time_raw = arrival.scheduled;
+						} else {
+							entry.type = "estimated";
+							arrival_time_raw = arrival.estimated;
+						}
 						
-							entry.arrivalTime = entry_date.getTime(); // seconds since epoch for arrival
-		
-							entry.headsign = arrival.fullSign;
-							entry.headsign = entry.headsign.replace("  "," ");
-							entry.stop_id = arrival.locid;
-							var stop_data = trStopCache().stopData('TriMet',entry.stop_id);
-							entry.stop_data = copyStopData(stop_data);
-							entry.route_id = arrival.route;
-							for (var j = 0; j < stop_data.routes.length; j++){
-								if (stop_data.routes[j].route_id == entry.route_id) {
-									entry.route_data = stop_data.routes[j];
-									if (serviceClasses[entry.route_id]) {
-										entry.route_data.service_class = serviceClasses[entry.route_id];
-									} else {
-										entry.route_data.service_class = 7; // local bus
-									}
+				    var year = arrival_time_raw.slice(0, 4);
+				    var mo = Number(arrival_time_raw.slice(5,7)) - 1; // Jan is 0 in JS
+				    var day = arrival_time_raw.slice(8, 10)
+				    var hour = arrival_time_raw.slice(11, 13);
+				    var min = arrival_time_raw.slice(14, 16);
+				    // Must be number or will be interpreted as tz
+				    var sec = Number(arrival_time_raw.slice(17,18));
+				    // Should get TriMet's TZ from GTFS agency defn, in case Oregon makes its own time
+				    // (e.g. America/Portland)
+				    var entry_date = new tzDate(year, mo, day, hour, min, sec, 'America/Los_Angeles');
+	
+					
+						entry.arrivalTime = entry_date.getTime(); // seconds since epoch for arrival
+	
+						entry.headsign = arrival.fullSign;
+						entry.headsign = entry.headsign.replace("  "," ");
+						entry.stop_id = arrival.locid;
+						var stop_data = trStopCache().stopData('TriMet',entry.stop_id);
+						entry.stop_data = copyStopData(stop_data);
+						entry.route_id = arrival.route;
+						for (var j = 0; j < stop_data.routes.length; j++){
+							if (stop_data.routes[j].route_id == entry.route_id) {
+								entry.route_data = stop_data.routes[j];
+								if (serviceClasses[entry.route_id]) {
+									entry.route_data.service_class = serviceClasses[entry.route_id];
+								} else {
+									entry.route_data.service_class = 7; // local bus
 								}
 							}
-							entry.agency = "TriMet";
-							entry.avl_agency_id = "TriMet";
-							entry.alerts = ""; // need to figure this out later
-							entry.last_updated = update_time;
-							local_queue.push(entry);
 						}
+						entry.agency = "TriMet";
+						entry.avl_agency_id = "TriMet";
+						entry.alerts = ""; // need to figure this out later
+						entry.last_updated = update_time;
+						local_queue.push(entry);
 					}
-					
-					// now copy to externally visble queue, making sure we're not in the middle of a query
-					updater.arrivals_queue = local_queue;
-					//trArrLog("<PRE>"+dump(updater.arrivals_queue)+"</PRE>");
-					
-			  }
-			});
-		}
-		catch(err) {
-			throw "Something went wrong during a TriMet arrival access.";
-		}
+				}
+				
+				// now copy to externally visble queue, making sure we're not in the middle of a query
+				updater.arrivals_queue = local_queue;
+				//trArrLog("<PRE>"+dump(updater.arrivals_queue)+"</PRE>");
+				
+		  }
+		});
+
 	}
 	
 	updater.trArrTriMetRequestLoop(); // first time immediately
