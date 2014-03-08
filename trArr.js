@@ -46,6 +46,18 @@ function timeInZone(zone, epoch) {
     return t;
 }
 
+function trArrSupportsCors() {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+    // Supports CORS
+    return true;
+  } else if (typeof XDomainRequest != "undefined") {
+    // IE
+    return true;
+  }
+  return false;
+}
+
 function trArrLog(msg) {
     // Add it to the log
     // do it using the DOM directly so we can get the element's pos.
@@ -245,8 +257,9 @@ function trArr(input_params) {
 		jQuery('body').prepend('<div id="arrivals_log_area"></div>');
 	}
 	
-	this.version = "1.13";
+	this.version = "1.14";
 	// v1.13 - first introduction of jquery.jsonp in TriMet service
+	// v1.14 - move health_update to ta-web-services
 	this.assets_dir = input_params.assetsDir || "assets";
 	
 	timezoneJS.timezone.zoneFileBasePath = this.assets_dir + "/tz";
@@ -522,17 +535,23 @@ function trArr(input_params) {
 
 						        // Scroll back to the top
 						        jQuery(document).scrollTop(0);
+						        
+						  var access_method = "jsonp";
+							if (trArrSupportsCors()) {
+								access_method = "json";
+							}
 							
 							jQuery.ajax({
-									url: "http://transitappliance.com/cgi-bin/health_update.pl",
+									dataType: access_method,
+									url: "http://ta-web-services.com/cgi-bin/health_update.pl",
 									data: { timestamp: arrivals_object.start_time, start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width() }
 							});
 							
 							// logging of startup, beat every 2 hours goes here
 							setInterval(function(){
 								jQuery.ajax({
-										url: "http://transitappliance.com/cgi-bin/health_update.pl",
-										dataType: 'jsonp',
+										url: "http://ta-web-services.com/cgi-bin/health_update.pl",
+										dataType: access_method,
 			  						cache: false,
 										data: { timestamp: ((new Date)).getTime(), start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width() },
 										success: function(data) {
