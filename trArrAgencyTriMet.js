@@ -63,7 +63,9 @@ function trArrAgencyTriMetMakeServiceRequests(stops,options,stop_cache,service_r
 		"10775": "northn14",
 		"10776": "northn18",
 		"10777": "northn21",
-		"10778": "northn22"
+		"10778": "northn22",
+		"13601": "moomeas",
+		"13602": "moomean"
 	};
 	
 	var trArrTriMetStreetcarLoopStops = {
