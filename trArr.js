@@ -257,9 +257,10 @@ function trArr(input_params) {
 		jQuery('body').prepend('<div id="arrivals_log_area"></div>');
 	}
 	
-	this.version = "1.14";
+	this.version = "1.15";
 	// v1.13 - first introduction of jquery.jsonp in TriMet service
 	// v1.14 - move health_update to ta-web-services
+	// v1.15 - add clock drift check back in
 	this.assets_dir = input_params.assetsDir || "assets";
 	
 	timezoneJS.timezone.zoneFileBasePath = this.assets_dir + "/tz";
@@ -560,7 +561,20 @@ function trArr(input_params) {
 											}
 										}
 								});
-							}, 30*60*1000);
+							}, 30*60*1000); // 30 min
+							
+							// check clock drift every 4 hours
+							
+							setInterval(function(){
+								jQuery.ajax({
+										url: "http://ta-web-services.com/cgi-bin/clock_check.pl",
+										dataType: access_method,
+			  						cache: false,
+										data: { timestamp: ((new Date)).getTime(), start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width() }
+								});
+							}, 4*60*60*1000); // 4 hr
+							
+							
 							
 							/* 3 ways to get display interval:
 							
