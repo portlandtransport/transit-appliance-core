@@ -134,6 +134,10 @@ function trArrTriMetUpdater(service_requests,arrivals_object) {
 					}
 				  var entry = new transitArrival();
 				  var arrival_time_raw = "";
+				  
+				  if (arrival.status == "canceled") {
+				  	continue; // don't show canceled trips
+				  }
 
 					if (arrival.status == "scheduled") {
 						entry.type = "scheduled";
