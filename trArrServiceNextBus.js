@@ -139,46 +139,49 @@ function trArrNextBusUpdater(service_requests,arrivals_object,avl_agency_id,agen
 		    
 		    if (prd.parent().parent().attr('stopTitle') != prd.parent().attr('title')) {
 		    	// skip estimates for trips to the stop we're already at (appears to be NextBus end of loop quirk)
-
+		    	
+		    	if (prd.attr('isDeparture') == 'true') {
+						// skip things that aren't departures
 			    
-			    entry.type = 'estimated'; // NextBus doesn't provide
-			    // scheduled arrivals, I don't think
-	
-			    // headsign from parent direction attribute
-			    // routeTitle is in predictions element, title is the destination from direction tag
-			    // tag hierarchy is predictions -> directions -> prediction
-			    entry.headsign = prd.parent().parent().attr('routeTitle') + ' ' + prd.parent().attr('title');
-			    entry.stop_id = prd.parent().parent().attr('stopTag');
-			    if (updater.stop_translation[entry.stop_id] !=  undefined) {
-						entry.stop_id = updater.stop_translation[entry.stop_id];
-			    }
-	
-			    var stop_data = trStopCache().stopData(agency, entry.stop_id)
-			    entry.stop_data = copyStopData(stop_data);
-			    
-			    entry.route_id = prd.parent().parent().attr('routeTag');
-			    if (updater.route_translation[entry.route_id] !=  undefined) {
-						entry.route_id = updater.route_translation[entry.route_id];
-			    }
-			    if (stop_data != undefined && stop_data.routes != undefined) {
-						for (var n = 0; n < stop_data.routes.length; n++){
-						    if (stop_data.routes[n].route_id == entry.route_id) {
-									entry.route_data = stop_data.routes[n];
-									if (avl_agency_id == "portland-sc") {
-										entry.route_data.service_class = 3; // streetcar, at least in Portland metro area
-									}
-						    }
-						}
-			    }
-	
-			    entry.agency = agency;
-			    entry.avl_agency_id = avl_agency_id;
-	
-			    entry.alerts = "";
-	
-			    entry.last_updated = update_time;
-	
-			    local_queue.push(entry);
+				    entry.type = 'estimated'; // NextBus doesn't provide
+				    // scheduled arrivals, I don't think
+		
+				    // headsign from parent direction attribute
+				    // routeTitle is in predictions element, title is the destination from direction tag
+				    // tag hierarchy is predictions -> directions -> prediction
+				    entry.headsign = prd.parent().parent().attr('routeTitle') + ' ' + prd.parent().attr('title');
+				    entry.stop_id = prd.parent().parent().attr('stopTag');
+				    if (updater.stop_translation[entry.stop_id] !=  undefined) {
+							entry.stop_id = updater.stop_translation[entry.stop_id];
+				    }
+		
+				    var stop_data = trStopCache().stopData(agency, entry.stop_id)
+				    entry.stop_data = copyStopData(stop_data);
+				    
+				    entry.route_id = prd.parent().parent().attr('routeTag');
+				    if (updater.route_translation[entry.route_id] !=  undefined) {
+							entry.route_id = updater.route_translation[entry.route_id];
+				    }
+				    if (stop_data != undefined && stop_data.routes != undefined) {
+							for (var n = 0; n < stop_data.routes.length; n++){
+							    if (stop_data.routes[n].route_id == entry.route_id) {
+										entry.route_data = stop_data.routes[n];
+										if (avl_agency_id == "portland-sc") {
+											entry.route_data.service_class = 3; // streetcar, at least in Portland metro area
+										}
+							    }
+							}
+				    }
+		
+				    entry.agency = agency;
+				    entry.avl_agency_id = avl_agency_id;
+		
+				    entry.alerts = "";
+		
+				    entry.last_updated = update_time;
+		
+				    local_queue.push(entry);
+				  }
 			  }
 		});
 
