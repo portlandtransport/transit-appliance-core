@@ -157,23 +157,24 @@ function trArrNextBusUpdater(service_requests,arrivals_object,avl_agency_id,agen
 		    entry.stop_data = copyStopData(stop_data);
 		    
 		    entry.route_id = prd.parent().parent().attr('routeTag');
-		    var direction = prd.attr('dirTag');
+		    var direction = prd.attr('dirTag').substr(0,5);
 		    
 				// this is an incredible hack, but it deals with getting nonsense predictions at end of each line
 				var suppress = false;
 				//debug_alert([entry.route_id, entry.stop_id, direction]);
-		    if (entry.route_id == '193' && entry.stop_id == "8989" && direction == "193_0_var0") {
+		    if (entry.route_id == '193' && entry.stop_id == "8989" && direction == "193_0") {
 		    	suppress = true;
 		    }	    
-		    if (entry.route_id == '193' && entry.stop_id == "12881" && direction == "193_1_var0") {
+		    if (entry.route_id == '193' && entry.stop_id == "12881" && direction == "193_1") {
 		    	suppress = true;
 		    }	
-		    if (entry.route_id == '194' && entry.stop_id == "10765" && direction == "194_1_var0") {
+		    if (entry.route_id == '194' && entry.stop_id == "10765" && direction == "194_1") {
 		    	suppress = true;
 		    }	
-		    if (entry.route_id == '194' && entry.stop_id == "13615" && direction == "194_0_var1") {
+		    if (entry.route_id == '194' && entry.stop_id == "13615" && direction == "194_0") {
 		    	suppress = true;
 		    }	
+
 		    
 		    
 		    if (suppress == false) {
