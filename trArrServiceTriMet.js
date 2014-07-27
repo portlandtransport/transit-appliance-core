@@ -72,7 +72,7 @@ function trArrTriMetUpdater(service_requests,arrivals_object) {
 		}
 	}
 	var stop_string = stop_id_list.join(',');
-	this.url = "http://developer.trimet.org/ws/V1/arrivals/?locIDs="+stop_string+"&appID=828B87D6ABC0A9DF142696F76&json=true";
+	this.url = "http://developer.trimet.org/ws/V1/arrivals/?locIDs="+stop_string+"&appID=828B87D6ABC0A9DF142696F76&json=true&streetcar=true";
 	
 	// functions that will be polled by the arrivals object
 	this.arrivals = function() {
@@ -127,7 +127,7 @@ function trArrTriMetUpdater(service_requests,arrivals_object) {
 				for (var i = 0; i < data.resultSet.arrival.length; i++){ 
 					var arrival = data.resultSet.arrival[i];
 					if (arrival.route == "193" || arrival.route == "194") {
-						continue; // Streetcar is handled by the NextBus adapter, so ignore TriMet info
+						//continue; // Streetcar is handled by the NextBus adapter, so ignore TriMet info
 					}
 					if (request_object[arrival.locid] == undefined || request_object[arrival.locid][arrival.route] == undefined) {
 						continue; // don't process an arrival if it wasn't in the stop list

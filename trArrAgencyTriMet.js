@@ -16,6 +16,8 @@
 
 function trArrAgencyTriMetMakeServiceRequests(stops,options,stop_cache,service_requests) {
 	
+	var use_nextbus = false;
+	
 	var trArrTriMetStreetcarStops = {
 		"8989": "n23mar_d",
 		"3596": "loven22",
@@ -143,20 +145,23 @@ function trArrAgencyTriMetMakeServiceRequests(stops,options,stop_cache,service_r
 		}
 
 		service_requests.TriMet.push(obj);
-		if (trArrTriMetStreetcarStops[stop_id] != undefined && ( stops[stop_id]['193'] != undefined || stops[stop_id]['*'] != undefined ) ) {
+		
+
+		if (use_nextbus && trArrTriMetStreetcarStops[stop_id] != undefined && ( stops[stop_id]['193'] != undefined || stops[stop_id]['*'] != undefined ) ) {
 			var avl_stop_id = stop_id;
 			/* while (avl_stop_id.length < 5) {
 				avl_stop_id = "0"+avl_stop_id;
 			} */
 			streetcar_stops.push({stop_data: stop_data, avl_stop_id: avl_stop_id});
 		}
-		if (trArrTriMetStreetcarLoopStops[stop_id] != undefined && ( stops[stop_id]['194'] != undefined || stops[stop_id]['*'] != undefined ) ) {
+		if (use_nextbus && trArrTriMetStreetcarLoopStops[stop_id] != undefined && ( stops[stop_id]['194'] != undefined || stops[stop_id]['*'] != undefined ) ) {
 			var avl_stop_id = stop_id;
 			/* while (avl_stop_id.length < 5) {
 				avl_stop_id = "0"+avl_stop_id;
 			} */
 			streetcar_loop_stops.push({stop_data: stop_data, avl_stop_id: avl_stop_id});
 		}
+
 
 	}
 	
