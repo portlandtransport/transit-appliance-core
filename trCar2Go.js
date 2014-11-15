@@ -108,8 +108,15 @@
 				this.update_vehicles = function() {
 					c2g_obj.flush_cache();
 					//debug_alert(c2g_obj.intersection_cache);
+					
+					var car2go_url = "https://www.car2go.com/api/v2.1/vehicles?loc="+this.loc+"&oauth_consumer_key="+this.consumer_key+"&format=json";
+					
+					if (location.search.match("car2goproxy") !== null) {
+						car2go_url = "http://transitappliance.com/cgi-bin/car2go_proxy.pl?loc="+this.loc+"&oauth_consumer_key="+this.consumer_key+"&format=json";
+					}
+					
 		      jQuery.ajax({
-		      	url: "https://www.car2go.com/api/v2.1/vehicles?loc="+this.loc+"&oauth_consumer_key="+this.consumer_key+"&format=json",
+		      	url: car2go_url,
 		      	dataType: 'jsonp',
 		      	success: function(data) {
 		      		var distances = [];
