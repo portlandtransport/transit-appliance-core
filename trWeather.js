@@ -59,9 +59,15 @@
 
 				
 				this.update_forecast = function() {
-
+					
+					var weather_url = "https://api.forecast.io/forecast/"+weather.api_key+"/"+options.lat+","+options.lng;
+					
+					if (location.search.match("weatherproxy") !== null) {
+						weather_url = "http://transitappliance.com/cgi-bin/weather_proxy.pl?key="+weather.api_key+"&lat="+options.lat+"&lng="+options.lng;
+					}
+	
 		      jQuery.ajax({
-						url: "https://api.forecast.io/forecast/"+weather.api_key+"/"+options.lat+","+options.lng,
+						url: weather_url,
 						dataType: "jsonp",
 						success: function(data){
 							if (data.minutely) {
