@@ -333,18 +333,22 @@ function trArr(input_params) {
 	
 	this.processAgencyRequests = function(arrivals_object,agency,callback) {
 		var agency_js_name = agency.replace('-',"");
+		var agency_code_url = arrivals_object.assets_dir+"/js/trArrAgency"+agency_js_name+".js";
 		jQuery.when(jQuery.ajax({
-		  url: arrivals_object.assets_dir+"/js/trArrAgency"+agency_js_name+".js",
+		  url: agency_code_url,
 		  dataType: 'script',
-		  async: false,
+		  async: true,
 		  success: function() {
 		  	trArrLog("Processing requests for "+agency+"<br>");
 		  	var function_name = "trArrAgency"+agency_js_name+"MakeServiceRequests";
 		  	window[function_name](arrivals_object.query_params.stop[agency],arrivals_object.query_params.options,trStopCache(),arrivals_object.service_requests);
 		  },
-		  error: function() {
+		  error: function(jqXHR,textStatus,errorThrown) {
+		  	trArrLog(agency_code_url+" "+textStatus+" "+errorThrown);
 		  	trArrLog("<font color='red'>Error processing requests for "+agency+", reloading page</font><br>");
-        window.location.reload();
+		  	setTimeout(function(){
+		  		window.location.reload();
+		  	},5000);
 		  }
 		})).done(function(data) {
 			var agency = arrivals_object.nextServiceRequestAgency(arrivals_object);
@@ -386,18 +390,22 @@ function trArr(input_params) {
 	}
 	
 	this.createUpdaterObjects = function(arrivals_object, service, callback) {
+		var updater_url = arrivals_object.assets_dir+"/js/trArrService"+service+".js";
 		jQuery.when(jQuery.ajax({
-		  url: arrivals_object.assets_dir+"/js/trArrService"+service+".js",
+		  url: updater_url,
 		  dataType: 'script',
-		  async: false,
+		  async: true,
 		  success: function() {
 		  	trArrLog("Creating updaters for "+service+"<br>");
 		  	var function_name = "trArrService"+service+"CreateUpdaters";
 		  	window[function_name](arrivals_object,arrivals_object.service_requests[service],arrivals_object.updater_array);
 		  },
-		  error: function() {
+		  error: function(jqXHR,textStatus,errorThrown) {
+		  	trArrLog("Updater: "+updater_url+" "+textStatus+" "+errorThrown);
 		  	trArrLog("<font color='red'>Error creating updaters for "+service+", reloading page</font><br>");
-		  	window.location.reload();
+		  	setTimeout(function(){
+		  		window.location.reload();
+		  	},5000);
 		  }
 		})).done(function(data) {
 			var service = arrivals_object.nextUpdaterRequest(arrivals_object);
