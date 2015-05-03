@@ -57,12 +57,17 @@ function trStopCache() {
 		
 		// get the stop info
 		//var service_url = "http://transitappliance.iriscouch.com/"+stops_db+"/"+stop.agency+":"+stop.stop_id;
+		/*
 		var service_url = "http://transitappliance.iriscouch.com/" + 
 		stops_db + "/_design/get/_view/by_id?key=%22"+stop.agency+
 		":"+stop.stop_id+"%22";
-		var alternate_url = "https://transitappliance.cloudant.com/" + 
+		var alternate_url = "http://transitappliance.cloudant.com/" + 
 		stops_db + "/_design/get/_view/by_id?key=%22"+stop.agency+
 		":"+stop.stop_id+"%22";
+		*/
+		
+		var service_url = "http://stops1.transitappliance.com/stop/"+stop.agency+":"+stop.stop_id;
+		var alternate_url = "http://stops2.transitappliance.com/stop/"+stop.agency+":"+stop.stop_id;
 
 		if (Math.random() > 0.5) {
 			service_url = alternate_url;
@@ -70,22 +75,17 @@ function trStopCache() {
 
 		trArrLog("Loading info for "+stop.agency+" stop "+stop.stop_id+"<br>");
 		jQuery.when(jQuery.ajax({
+			accepts: "*",
 	    type: "GET",
 			url: service_url,
 			timeout: 2000,
-			dataType: "jsonp",
+			dataType: "json",
 			success: function(data) {
-				if (data.rows != undefined && data.rows.length == 1) {
-					//debug_alert(data.rows[0].value);
-					trStopCache.instance.addToCache(data.rows[0].value.agency,data.rows[0].value.stop_id,data.rows[0].value);
+					trStopCache.instance.addToCache(data.agency,data.stop_id,data);
 					trArrLog("success<br>");
-				} else {
-					//trStopCache().cache[stop.agency][stop.stop_id] = false;
-					trArrLog("<font color='red'>"+stop.agency+" stop "+stop.stop_id+" no data for stop - retrying.</font><br>");
-				}
 			},
 			error: function(jqXHR, textStatus, errorThrown){
-				trArrLog("<font color='red'>error "+dump(jqXHR.status)+"</font><br>");
+				trArrLog("<font color='red'>error "+dump([jqXHR.status,textStatus])+"</font><br>");
 			}				
 		})).done(function(data) {
 			next_stop = trStopCache().nextUncachedStop(stop_config);
