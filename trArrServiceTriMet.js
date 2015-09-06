@@ -101,6 +101,7 @@ function trArrTriMetUpdater(service_requests,arrivals_object) {
 			"100": 1,
 			"190" : 1,
 			"200": 1,
+			"290": 1,
 			"203": 2, // commuter rail
 			"193": 3, // Streetcar
 			"194": 3, // Streetcar
