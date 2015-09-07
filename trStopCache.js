@@ -66,8 +66,8 @@ function trStopCache() {
 		":"+stop.stop_id+"%22";
 		*/
 		
-		var service_url = "http://stops1.transitappliance.com/stop/"+stop.agency+":"+stop.stop_id;
-		var alternate_url = "http://stops2.transitappliance.com/stop/"+stop.agency+":"+stop.stop_id;
+		var service_url = "http://stops2.transitappliance.com/stop/"+stop.agency+":"+stop.stop_id;
+		var alternate_url = "http://stops3.transitappliance.com/stop/"+stop.agency+":"+stop.stop_id;
 
 		if (Math.random() > 0.5) {
 			service_url = alternate_url;
