@@ -49,7 +49,7 @@ function trAgencyCache() {
 		//this.cache[agency] = false;
 		// get the stop info
 		var service_url = "http://agencies.transitappliance.com/agencies_production/"+agency;
-		var alternate_url = "https://transitappliance.cloudant.com/agencies_production/"+agency;
+		var alternate_url = "http://agencies1.transitappliance.com/"+agency;
 		if (Math.random() > 0.5) {
 			service_url = alternate_url;
 		}
@@ -59,7 +59,7 @@ function trAgencyCache() {
 	    type: "GET",
 			url: service_url,
 			timeout: 2000,
-			dataType: "jsonp",
+			dataType: "json",
 			success: function(data) {
 				trAgencyCache.instance.addToCache(agency,data);
 				trArrLog("success<br>");
