@@ -163,7 +163,7 @@ function trArrPCCUpdater(service_requests,arrivals_object) {
 							entry.app_route_id = entry.route_id;
 							entry.route_data = {};
 							entry.route_data.agency = "PCC";
-							entry.route_data.service_class = "9";
+							entry.route_data.service_class = "6";
 							entry.route_data.direction_id = 0;
 							entry.route_data.route_id = arrival_set.RouteID;
 							entry.agency = "PCC";
