@@ -175,7 +175,7 @@ function trArrTriMetUpdater(service_requests,arrivals_object) {
 							if (serviceClasses[entry.route_id]) {
 								entry.route_data.service_class = serviceClasses[entry.route_id];
 							} else {
-								entry.route_data.service_class = 7; // local bus
+								entry.route_data.service_class = 6; // local bus
 							}
 						}
 					}
