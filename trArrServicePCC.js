@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+
 function trArrServicePCCCreateUpdaters(arrivals_object, service_requests, updaters) {
 	
 	var max_stops_per_request = 10;
@@ -38,6 +39,40 @@ function trArrPCCUpdater(service_requests,arrivals_object) {
 	var updater = this;
 	
 	updater.access_method = "jsonp";
+	
+		function addZero(i) {
+		    if (i < 10) {
+		        i = "0" + i;
+		    }
+		    return i;
+		}
+	
+	// get schedule limits
+	function trArrServicePCCGetScheduleLimits() {
+		jQuery.ajax({
+		  url: "http://shuttle.pcc.edu/Services/JSONPRelay.svc/GetRouteScheduleTimes?APIKey=8882812681",
+		  dataType: updater.access_method,
+		  cache: false,
+		  jsonp: "method",
+		  success: function(data) {
+		  	//console.log(data);
+		  	if (typeof data === "object") {
+			  	var schedule_hash = {};
+					for (var i = 0; i < data.length; i++) {
+						if (typeof data[i].RouteID !== "undefined") {
+							schedule_hash[data[i].RouteID] = {};
+							schedule_hash[data[i].RouteID].start = data[i].StartTime.substring(11);
+							schedule_hash[data[i].RouteID].end = data[i].EndTime.substring(11);
+						}
+					}
+					updater.schedule = schedule_hash;
+					//console.log(updater.schedule);
+				}
+		  }
+		});
+	}
+	trArrServicePCCGetScheduleLimits();
+
 	
 	// every updater object needs to maintain a queue
 	this.arrivals_queue = [];
@@ -84,6 +119,10 @@ function trArrPCCUpdater(service_requests,arrivals_object) {
 	
 	this.trArrPCCRequestLoop = function() {
 		
+		if (typeof updater.schedule !== "object") {
+			trArrServicePCCGetScheduleLimits();
+		}
+		
 		var RouteStopLocations = {
 			"559": "Cascade",
 			"563": "Cascade",
@@ -106,14 +145,14 @@ function trArrPCCUpdater(service_requests,arrivals_object) {
 			"550": "Green Shuttle to Sylvania",
 			"537": "Blue Shuttle to Sylvania",
 			"565": "Red Shuttle to Cascade",
-			"548": "Yellow Express to Sylvania",
+			"541": "Yellow Shuttle to Southeast",
+			"548": "Yellow Shuttle to Sylvania",
 			"542": "Yellow Shuttle to Sylvania",
 			"561": "Purple Shuttle to Cascade",
 			"534": "Orange Shuttle to Downtown",
 			"536": "Blue Shuttle to Rock Creek",
-			"547": "Yellow Express to Southeast",
-			"549": "Green Shuttle to Cascade",
-			"541": "Yellow Shuttle via Hawthorne to Southeast"
+			"547": "Yellow Shuttle to Southeast",
+			"549": "Green Shuttle to Cascade"			
 		};
 
 				
@@ -123,7 +162,7 @@ function trArrPCCUpdater(service_requests,arrivals_object) {
 	  	var local_queue = [];
 	  	var update_time = localTime().getTime();
 	  	
-	  	console.log(this);
+	  	// console.log(this);
 
 			for (var i = 0; i < data.length; i++){ 
 				var arrival_set = data[i];
@@ -147,6 +186,7 @@ function trArrPCCUpdater(service_requests,arrivals_object) {
 						  var entry = new transitArrival();
 						  entry.type = "estimated";
 						  entry.arrivalTime = (new Date()).getTime() + 1000*arrival.SecondsToStop;
+
 							entry.headsign = headsigns[arrival_set.RouteStopID];
 							entry.app_headsign_less_route = entry.headsign;
 							entry.app_color = 8;
@@ -160,6 +200,14 @@ function trArrPCCUpdater(service_requests,arrivals_object) {
 							var stop_data = trStopCache().stopData('PCC',entry.stop_id);
 							entry.stop_data = copyStopData(stop_data);
 							entry.route_id = arrival_set.RouteID;
+							
+							var dateObj = new Date(entry.arrivalTime);
+							var h = addZero(dateObj.getHours());
+    					var m = addZero(dateObj.getMinutes());
+    					var s = addZero(dateObj.getSeconds());
+    					var hour_min = h + ":" + m + ":" + s;
+    					//console.log(entry.route_id+" "+updater.schedule[entry.route_id].start+" "+hour_min+" "+updater.schedule[entry.route_id].end);
+    					
 							entry.app_route_id = entry.route_id;
 							entry.route_data = {};
 							entry.route_data.agency = "PCC";
@@ -173,7 +221,7 @@ function trArrPCCUpdater(service_requests,arrivals_object) {
 							if (typeof entry.headsign == "undefined") {
 								continue;
 							}
-							console.log(entry);
+							// console.log(entry);
 							local_queue.push(entry);
 						}
 					}
