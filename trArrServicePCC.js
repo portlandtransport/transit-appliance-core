@@ -182,6 +182,11 @@ function trArrPCCUpdater(service_requests,arrivals_object) {
 						var arrival = arrival_set.VehicleEstimates[j];
 						
 						if (arrival.OnRoute == true) {
+							
+							if (arrival.SecondsToStop > 25*60) {
+								// ignore predictions more than 25 minutes out, they don't seem very accurate
+								continue;
+							}
 										
 						  var entry = new transitArrival();
 						  entry.type = "estimated";
