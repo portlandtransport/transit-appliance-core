@@ -257,10 +257,11 @@ function trArr(input_params) {
 		jQuery('body').prepend('<div id="arrivals_log_area"></div>');
 	}
 	
-	this.version = "1.15";
+	this.version = "1.16";
 	// v1.13 - first introduction of jquery.jsonp in TriMet service
 	// v1.14 - move health_update to ta-web-services
 	// v1.15 - add clock drift check back in
+	// v1.16 - pass platform and user agent on health_update
 	this.assets_dir = input_params.assetsDir || "assets";
 	
 	timezoneJS.timezone.zoneFileBasePath = this.assets_dir + "/tz";
@@ -553,16 +554,16 @@ function trArr(input_params) {
 							jQuery.ajax({
 									dataType: access_method,
 									url: "http://ta-web-services.com/cgi-bin/health_update.pl",
-									data: { timestamp: arrivals_object.start_time, start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width() }
+									data: { timestamp: arrivals_object.start_time, start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width(), "platform": arrivals_object.query_params.option["platform"], "useragent": navigator.userAgent }
 							});
 							
-							// logging of startup, beat every 2 hours goes here
+							// logging of startup, beat every 30 minutes goes here
 							setInterval(function(){
 								jQuery.ajax({
 										url: "http://ta-web-services.com/cgi-bin/health_update.pl",
 										dataType: access_method,
 			  						cache: false,
-										data: { timestamp: ((new Date)).getTime(), start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width() },
+										data: { timestamp: ((new Date)).getTime(), start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width(), "platform": arrivals_object.query_params.option["platform"], "useragent": navigator.userAgent },
 										success: function(data) {
 											if( typeof data != "undefined" && data.reset == true ) {
 												arrivals_object.reset_app();
