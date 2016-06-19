@@ -551,10 +551,15 @@ function trArr(input_params) {
 								access_method = "json";
 							}
 							
+							var platform = "";
+							if (typeof arrivals_object.options.platform === 'object') {
+								platform = arrivals_object.options.platform[0];
+							}
+							
 							jQuery.ajax({
 									dataType: access_method,
 									url: "http://ta-web-services.com/cgi-bin/health_update.pl",
-									data: { timestamp: arrivals_object.start_time, start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width(), "platform": arrivals_object.query_params.option["platform"], "useragent": navigator.userAgent }
+									data: { timestamp: arrivals_object.start_time, start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width(), "platform": platform }
 							});
 							
 							// logging of startup, beat every 30 minutes goes here
@@ -563,7 +568,7 @@ function trArr(input_params) {
 										url: "http://ta-web-services.com/cgi-bin/health_update.pl",
 										dataType: access_method,
 			  						cache: false,
-										data: { timestamp: ((new Date)).getTime(), start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width(), "platform": arrivals_object.query_params.option["platform"], "useragent": navigator.userAgent },
+										data: { timestamp: ((new Date)).getTime(), start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width(), "platform": platform },
 										success: function(data) {
 											if( typeof data != "undefined" && data.reset == true ) {
 												arrivals_object.reset_app();
