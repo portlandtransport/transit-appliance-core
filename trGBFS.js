@@ -205,7 +205,7 @@ function trGBFS(options) {
 		gbfs_obj.stations.sort(function(a, b) {
     	return a.distance - b.distance;
 		});
-		console.table(gbfs_obj.stations);
+		//console.table(gbfs_obj.stations);
 		
 		// now start updating loop
 		
