@@ -117,8 +117,10 @@ function trGBFS(options) {
 		var locations = [];
 		for (var i = 0; i < gbfs_obj.stations.length; i++) {
 			var status = status_obj[gbfs_obj.stations[i].station_id];
-			if (status.num_bikes_available > 0 && status.is_renting == 1) {
-				locations.push({ "station_id": gbfs_obj.stations[i].station_id, "distance": gbfs_obj.stations[i].distance, "formatted_distance": gbfs_obj.format_distance(gbfs_obj.stations[i].distance), "name": gbfs_obj.stations[i].name, "num_bikes_available": status.num_bikes_available, "last_reported": status.last_reported });
+			if (typeof status === 'object') {
+				if (status.num_bikes_available > 0 && status.is_renting == 1) {
+					locations.push({ "station_id": gbfs_obj.stations[i].station_id, "distance": gbfs_obj.stations[i].distance, "formatted_distance": gbfs_obj.format_distance(gbfs_obj.stations[i].distance), "name": gbfs_obj.stations[i].name, "num_bikes_available": status.num_bikes_available, "last_reported": status.last_reported });
+				}
 			}
 		}
 		//console.table(locations);
@@ -147,7 +149,7 @@ function trGBFS(options) {
 	/* initializations */
 	
 	this.gbfs_feed = "http://boise.greenbike.com/opendata/gbfs.json";
-	//this.gbfs_feed = "http://biketownpdx.socialbicycles.com/opendata/gbfs.json";
+	this.gbfs_feed = "http://biketownpdx.socialbicycles.com/opendata/gbfs.json";
 	this.gbfs_feed_retry_period = 5*60*1000; // start at 5 minutes, double on each retry
 	
 	
