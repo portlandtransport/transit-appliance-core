@@ -22,7 +22,9 @@ function trGBFS(options) {
 	
 	// accessor
 	this.get_locations = function() {
-		gbfs_obj.locations.length = this.num_locations; // truncate spares before returning
+		if (gbfs_obj.locations.length > this.num_locations) {
+			gbfs_obj.locations.length = this.num_locations; // truncate spares before returning
+		}
 		return gbfs_obj.locations;
 	}
 	
