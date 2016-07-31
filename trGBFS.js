@@ -131,9 +131,8 @@ function trGBFS(options) {
 	
 	this.update_locations = function() {
 		gbfs_obj.flush_cache();
-		//debug_alert(gbfs_obj.intersection_cache);
-		
-		if (gbfs_obj.feeds_object.station_status) {
+
+		if (typeof gbfs_obj.feeds_object === "object" && gbfs_obj.feeds_object.station_status) {
     	jQuery.ajax({
     		url: gbfs_obj.feeds_object.station_status,
     		dataType: 'json',
