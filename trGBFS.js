@@ -139,7 +139,8 @@ function trGBFS(options) {
 	  		cache: false,
     		success: gbfs_obj.station_status,
 			  error: function(XMLHttpRequest, textStatus, errorThrown) {
-			  	console.log("error fetching GBFS station information: "+feeds_object.station_status);
+			  	throw "error fetching GBFS station status";
+			  	// console.log("error fetching GBFS station information: "+gbfs_obj.feeds_object.station_status);
 			  }
     	});
     }
@@ -161,7 +162,7 @@ function trGBFS(options) {
 			cache: false,
 			success: initialize_gbfs,
 		  error: function(XMLHttpRequest, textStatus, errorThrown) {
-				console.log("unable to get GBFS feeds: "+this.gbfs_feed);
+				// console.log("unable to get GBFS feeds: "+this.gbfs_feed);
 				retry_initialization();
 		  }
 		});
@@ -189,7 +190,7 @@ function trGBFS(options) {
 	  		cache: false,
     		success: initialize_stations,
 			  error: function(XMLHttpRequest, textStatus, errorThrown) {
-			  	console.log("error fetching GBFS station information: "+feeds_object.station_information);
+			  	// console.log("error fetching GBFS station information: "+feeds_object.station_information);
 			  	retry_initialization();
 			  }
     	});
