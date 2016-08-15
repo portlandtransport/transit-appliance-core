@@ -139,8 +139,16 @@ function trGBFS(options) {
 	  		cache: false,
     		success: gbfs_obj.station_status,
 			  error: function(XMLHttpRequest, textStatus, errorThrown) {
-			  	throw "error fetching GBFS station status";
-			  	// console.log("error fetching GBFS station information: "+gbfs_obj.feeds_object.station_status);
+			  	/* retry once before we throw an error */
+		    	jQuery.ajax({
+		    		url: gbfs_obj.feeds_object.station_status,
+		    		dataType: 'json',
+			  		cache: false,
+		    		success: gbfs_obj.station_status,
+					  error: function(XMLHttpRequest, textStatus, errorThrown) {
+					  	throw "GB1: error fetching GBFS station status";
+					  }
+		    	});
 			  }
     	});
     }
@@ -150,7 +158,6 @@ function trGBFS(options) {
 	
 	/* initializations */
 	
-	this.gbfs_feed = "http://boise.greenbike.com/opendata/gbfs.json";
 	this.gbfs_feed = "http://biketownpdx.socialbicycles.com/opendata/gbfs.json";
 	this.gbfs_feed_retry_period = 5*60*1000; // start at 5 minutes, double on each retry
 	
