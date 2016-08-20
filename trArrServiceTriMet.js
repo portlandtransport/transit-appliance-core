@@ -212,7 +212,7 @@ function trArrTriMetUpdater(service_requests,arrivals_object) {
 						  cache: false,
 						  error: function(data) {
 						  	updater.update_connection_health(false);
-						  	throw "TriMet Arrivals Error";
+						  	throw "TR1: TriMet Arrivals Error";
 						  },
 						  success: updater.process_results
 						});
