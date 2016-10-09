@@ -72,9 +72,12 @@
 				
 				this.format_street = function (address) {
 					var fields = address.split(/,/); // separate street address
+					/* Car2Go changed address format Sept 2016
 					fields = fields[0].split(/\s+/);
 					fields.unshift(fields.pop());
 					address = fields.join(" ");
+					*/
+					address = fields[0];
 					return address.replace(" Nw "," NW ").replace(" Sw "," SW ").replace(" Se "," SE ").replace(" Ne "," NE ");
 				}
 				
