@@ -125,7 +125,16 @@
 		      	url: car2go_url,
 		      	dataType: 'jsonp',
 		      	jsonpCallback: callback,
+		      	error: function(XMLHttpRequest, textStatus, errorThrown) {
+					  	throw "C2G1: error fetching Car2Go vehicles";
+					  	c2g_obj.vehicles = []; // clear vehicle list
+					  },
 		      	success: function(data) {
+		      		if (typeof data === "undefined" || typeof data.placemarks === "undefined") {
+		      			throw "C2G2: missing data while fetching Car2Go vehicles";
+		      			c2g_obj.vehicles = []; // clear vehicle list
+		      			return;
+		      		}
 		      		var distances = [];
 		      		jQuery.each(data.placemarks, function(index,value) {	
 								distances.push([ c2g_obj.distance(data.placemarks[index].coordinates), index ]);
