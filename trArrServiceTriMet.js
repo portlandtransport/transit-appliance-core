@@ -106,6 +106,8 @@ function trArrTriMetUpdater(service_requests,arrivals_object) {
 			"193": 3, // Streetcar
 			"194": 3, // Streetcar
 			"195": 3, // Streetcar
+			"196": 3, // Streetcar
+			"293": 3, // Streetcar
 			"4": 5, // frequent service-Division/Fessenden
 			"6": 5,
 			"8": 5,
