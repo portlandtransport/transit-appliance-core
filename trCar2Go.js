@@ -10,6 +10,7 @@
 				
 				this.intersection_cache = {};
 				this.vehicles = [];
+				this.last_modified = new Date();
 				this.cache_miss_count = 0;
 				this.no_cross_street_count = 0;
 				
@@ -19,10 +20,16 @@
 				this.num_vehicles = options.num_vehicles || 2;
 				this.consumer_key = options.consumer_key;
 				
-				// accessor
+				// accessors
 				this.get_vehicles = function() {
-					c2g_obj.vehicles.length = this.num_vehicles; // truncate spares before returning
+				  if (c2g_obj.vehicles.length > this.num_vehicles) {
+					  c2g_obj.vehicles.length = this.num_vehicles; // truncate spares before returning
+					}
 					return c2g_obj.vehicles;
+				}
+				
+				this.get_last_modified = function() {
+					return c2g_obj.last_modified;
 				}
 				
 				this.get_cache_miss_count = function() {
@@ -70,6 +77,18 @@
 				
 				// utility functions
 				
+        this.supports_cors = function () {
+          var xhr = new XMLHttpRequest();
+          if ("withCredentials" in xhr) {
+            // Supports CORS
+            return true;
+          } else if (typeof XDomainRequest != "undefined") {
+            // IE
+            return true;
+          }
+          return false;
+        }
+				
 				this.format_street = function (address) {
 					var fields = address.split(/,/); // separate street address
 					/* Car2Go changed address format Sept 2016
@@ -112,29 +131,65 @@
 					c2g_obj.flush_cache();
 					//debug_alert(c2g_obj.intersection_cache);
 					
+					/* old AWS proxy 
 					var car2go_url = "https://www.car2go.com/api/v2.1/vehicles?loc="+this.loc+"&oauth_consumer_key="+this.consumer_key+"&format=json";
 					car2go_url = "https://a4nnfp090l.execute-api.us-east-1.amazonaws.com/prod/transitboard_c2gproxy";
 					var callback = "vehicles";
+					var datatype = "jsonp";
+					*/
 					
+					// s3 approach
+					var datatype = "jsonp";
+  			  var car2go_url = "http://car2go.transitboard.com/portland.js";
+  			  var callback = "vehicles";
+					if (c2g_obj.supports_cors()) {
+  					datatype = "json";
+  					car2go_url = "http://car2go.transitboard.com/portland.json";
+  					callback = (function () { return; })(); // set undefined
+  				}
+					
+					/* older Perl proxy approach
 					if (location.search.match("car2goproxy") !== null) {
 						car2go_url = "http://transitappliance.com/cgi-bin/car2go_proxy.pl?loc="+this.loc+"&oauth_consumer_key="+this.consumer_key+"&format=json";
 						callback = (function () { return; })(); // set undefined
+						datatype = "jsonp";
 					}
+					*/
 					
 		      jQuery.ajax({
 		      	url: car2go_url,
-		      	dataType: 'jsonp',
+		      	dataType: datatype,
 		      	jsonpCallback: callback,
 		      	error: function(XMLHttpRequest, textStatus, errorThrown) {
 					  	throw "C2G1: error fetching Car2Go vehicles";
 					  	c2g_obj.vehicles = []; // clear vehicle list
 					  },
-		      	success: function(data) {
+		      	success: function(data, textStatus, request) {
+		      	  
+		      	  // check valid data
 		      		if (typeof data === "undefined" || typeof data.placemarks === "undefined") {
 		      			throw "C2G2: missing data while fetching Car2Go vehicles";
 		      			c2g_obj.vehicles = []; // clear vehicle list
 		      			return;
 		      		}
+		      	  
+		      	  // check age of data
+		      	  var now = new Date();
+              var written = new Date(request.getResponseHeader('last-modified'));
+		      	  if (typeof data !== "undefined" && typeof data.lastModified !== "undefined") {
+		      	    written = new Date(data.lastModified);
+		      	  }		      
+		      	  c2g_obj.last_modified = written; // make it available to callers	  
+              var age = now.getTime() - written.getTime();
+              
+              if (age > 180*1000) {
+                // don't use data older than 3 minutes
+                c2g_obj.vehicles = []; // clear vehicle list
+		      			throw "C2G3: expired data while fetching Car2Go vehicles";
+		      			return;
+              }
+              
+
 		      		var distances = [];
 		      		jQuery.each(data.placemarks, function(index,value) {	
 								distances.push([ c2g_obj.distance(data.placemarks[index].coordinates), index ]);
