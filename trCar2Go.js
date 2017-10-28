@@ -142,7 +142,7 @@
 					var datatype = "jsonp";
   			  var car2go_url = "http://car2go.transitboard.com/portland.js";
   			  var callback = "vehicles";
-					if (c2g_obj.supports_cors()) {
+					if (c2g_obj.supports_cors() && location.search.match("car2goproxy") === null) {
   					datatype = "json";
   					car2go_url = "http://car2go.transitboard.com/portland.json";
   					callback = (function () { return; })(); // set undefined
@@ -161,7 +161,7 @@
 		      	dataType: datatype,
 		      	jsonpCallback: callback,
 		      	error: function(XMLHttpRequest, textStatus, errorThrown) {
-					  	throw "C2G1: error fetching Car2Go vehicles";
+					  	throw "C2G1: error fetching Car2Go vehicles "+textStatus;
 					  	c2g_obj.vehicles = []; // clear vehicle list
 					  },
 		      	success: function(data, textStatus, request) {
