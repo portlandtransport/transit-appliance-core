@@ -161,96 +161,108 @@
 		      	dataType: datatype,
 		      	jsonpCallback: callback,
 		      	error: function(XMLHttpRequest, textStatus, errorThrown) {
-					  	throw "C2G1: error fetching Car2Go vehicles "+textStatus;
-					  	c2g_obj.vehicles = []; // clear vehicle list
+		      	  // retry
+  		      	jQuery.ajax({
+    		      	url: car2go_url,
+    		      	dataType: datatype,
+    		      	jsonpCallback: callback,
+    		      	error: function(XMLHttpRequest, textStatus, errorThrown) {
+    		      	  // retry
+    					  	throw "C2G1: error fetching Car2Go vehicles "+textStatus;
+    					  	c2g_obj.vehicles = []; // clear vehicle list
+    					  },
+    		      	success: process_vehicles
+  					  });
 					  },
-		      	success: function(data, textStatus, request) {
-		      	  
-		      	  // check valid data
-		      		if (typeof data === "undefined" || typeof data.placemarks === "undefined") {
-		      			throw "C2G2: missing data while fetching Car2Go vehicles";
-		      			c2g_obj.vehicles = []; // clear vehicle list
-		      			return;
-		      		}
-		      	  
-		      	  // check age of data
-		      	  var now = new Date();
-              var written = new Date(request.getResponseHeader('last-modified'));
-		      	  if (typeof data !== "undefined" && typeof data.lastModified !== "undefined") {
-		      	    written = new Date(data.lastModified);
-		      	  }		      
-		      	  c2g_obj.last_modified = written; // make it available to callers	  
-              var age = now.getTime() - written.getTime();
-              
-              if (age > 180*1000) {
-                // don't use data older than 3 minutes
-                c2g_obj.vehicles = []; // clear vehicle list
-		      			throw "C2G3: expired data while fetching Car2Go vehicles";
-		      			return;
-              }
-              
-
-		      		var distances = [];
-		      		jQuery.each(data.placemarks, function(index,value) {	
-								distances.push([ c2g_obj.distance(data.placemarks[index].coordinates), index ]);
-		      		});
-		      		
-		      		// sort by distance
-		      		distances.sort(function(a, b) { return a[0] > b[0] ? 1 : a[0] < b[0] ? -1 : 0 });
-		      		
-		      		var collection = [];
-		      		collection.length = c2g_obj.num_vehicles*1+2; // have a couple waiting in reserve in case cars leave
-		      		
-		      		// make sure we're not asking for more data than exists (distances may have no elements during a car2go service outage)
-		      		if (collection.length > distances.length) {
-		      			collection.length = distances.length;
-		      		}
-		      		
-		      		c2g_obj.vehicles = []; // clear vehicle list
-		      		
-		      		jQuery.each(collection, function(index) {
-		      			// update the tuple, using the default string
-		      			var lat = data.placemarks[distances[index][1]].coordinates[1];
-		      			var lng = data.placemarks[distances[index][1]].coordinates[0]; 
-		      			
-		      			var location = c2g_obj.format_street(data.placemarks[distances[index][1]].address);
-		      			if (c2g_obj.intersection_cache[lat] != undefined && c2g_obj.intersection_cache[lat][lng] != undefined) {
-		      				if (location.indexOf(c2g_obj.intersection_cache[lat][lng].street1) != -1) {
-		      					// street1 is part of address
-		      					location = location + " (near "+c2g_obj.intersection_cache[lat][lng].street2+")";
-		      				} else if (location.indexOf(c2g_obj.intersection_cache[lat][lng].street2) != -1) {
-		      					location = location + " (near "+c2g_obj.intersection_cache[lat][lng].street1+")";
-		      				} else {
-		      					location = location + " ("+c2g_obj.intersection_cache[lat][lng].street1+" and "+c2g_obj.intersection_cache[lat][lng].street2+")";
-		      					++c2g_obj.no_cross_street_count;
-		      				}
-		      				c2g_obj.intersection_cache[lat][lng].accessed = new Date(); // update timestamp
-		      			} else {
-		      				c2g_obj.cache_miss_count++;
-		      				// populate intersection cache
-			      			jQuery.ajax({
-			      				url: "http://api.geonames.org/findNearestIntersectionJSON?lat="+data.placemarks[distances[index][1]].coordinates[1]+"&lng="+data.placemarks[distances[index][1]].coordinates[0]+"&username=transitappliance",
-			      				dataType: 'jsonp',
-			      				success: function(intersection) {
-			      					if (intersection != undefined && intersection.intersection != undefined) {
-				      					if (c2g_obj.intersection_cache[data.placemarks[distances[index][1]].coordinates[1]] == undefined) {
-				      						c2g_obj.intersection_cache[data.placemarks[distances[index][1]].coordinates[1]] = {};
-				      					}
-				      					c2g_obj.intersection_cache[data.placemarks[distances[index][1]].coordinates[1]][data.placemarks[distances[index][1]].coordinates[0]] = {street1: intersection.intersection.street1, street2: intersection.intersection.street2, accessed: new Date()};
-											}
-			      				}
-			      			});
-			      		}
-		      				
-		      			c2g_obj.vehicles.push([location, distances[index][0]]);
-
-						  });		
-		      	}
+		      	success: process_vehicles
 					});
 				}
 
 				c2g_obj.update_vehicles();
 				
 				setInterval(function() {c2g_obj.update_vehicles()}, 60*1000); // update every minute
+				
+				function process_vehicles(data, textStatus, request) {
+		      	  
+	      	  // check valid data
+	      		if (typeof data === "undefined" || typeof data.placemarks === "undefined") {
+	      			throw "C2G2: missing data while fetching Car2Go vehicles";
+	      			c2g_obj.vehicles = []; // clear vehicle list
+	      			return;
+	      		}
+	      	  
+	      	  // check age of data
+	      	  var now = new Date();
+            var written = new Date(request.getResponseHeader('last-modified'));
+	      	  if (typeof data !== "undefined" && typeof data.lastModified !== "undefined") {
+	      	    written = new Date(data.lastModified);
+	      	  }		      
+	      	  c2g_obj.last_modified = written; // make it available to callers	  
+            var age = now.getTime() - written.getTime();
+            
+            if (age > 180*1000) {
+              // don't use data older than 3 minutes
+              c2g_obj.vehicles = []; // clear vehicle list
+	      			throw "C2G3: expired data while fetching Car2Go vehicles";
+	      			return;
+            }
+            
+
+	      		var distances = [];
+	      		jQuery.each(data.placemarks, function(index,value) {	
+							distances.push([ c2g_obj.distance(data.placemarks[index].coordinates), index ]);
+	      		});
+	      		
+	      		// sort by distance
+	      		distances.sort(function(a, b) { return a[0] > b[0] ? 1 : a[0] < b[0] ? -1 : 0 });
+	      		
+	      		var collection = [];
+	      		collection.length = c2g_obj.num_vehicles*1+2; // have a couple waiting in reserve in case cars leave
+	      		
+	      		// make sure we're not asking for more data than exists (distances may have no elements during a car2go service outage)
+	      		if (collection.length > distances.length) {
+	      			collection.length = distances.length;
+	      		}
+	      		
+	      		c2g_obj.vehicles = []; // clear vehicle list
+	      		
+	      		jQuery.each(collection, function(index) {
+	      			// update the tuple, using the default string
+	      			var lat = data.placemarks[distances[index][1]].coordinates[1];
+	      			var lng = data.placemarks[distances[index][1]].coordinates[0]; 
+	      			
+	      			var location = c2g_obj.format_street(data.placemarks[distances[index][1]].address);
+	      			if (c2g_obj.intersection_cache[lat] != undefined && c2g_obj.intersection_cache[lat][lng] != undefined) {
+	      				if (location.indexOf(c2g_obj.intersection_cache[lat][lng].street1) != -1) {
+	      					// street1 is part of address
+	      					location = location + " (near "+c2g_obj.intersection_cache[lat][lng].street2+")";
+	      				} else if (location.indexOf(c2g_obj.intersection_cache[lat][lng].street2) != -1) {
+	      					location = location + " (near "+c2g_obj.intersection_cache[lat][lng].street1+")";
+	      				} else {
+	      					location = location + " ("+c2g_obj.intersection_cache[lat][lng].street1+" and "+c2g_obj.intersection_cache[lat][lng].street2+")";
+	      					++c2g_obj.no_cross_street_count;
+	      				}
+	      				c2g_obj.intersection_cache[lat][lng].accessed = new Date(); // update timestamp
+	      			} else {
+	      				c2g_obj.cache_miss_count++;
+	      				// populate intersection cache
+		      			jQuery.ajax({
+		      				url: "http://api.geonames.org/findNearestIntersectionJSON?lat="+data.placemarks[distances[index][1]].coordinates[1]+"&lng="+data.placemarks[distances[index][1]].coordinates[0]+"&username=transitappliance",
+		      				dataType: 'jsonp',
+		      				success: function(intersection) {
+		      					if (intersection != undefined && intersection.intersection != undefined) {
+			      					if (c2g_obj.intersection_cache[data.placemarks[distances[index][1]].coordinates[1]] == undefined) {
+			      						c2g_obj.intersection_cache[data.placemarks[distances[index][1]].coordinates[1]] = {};
+			      					}
+			      					c2g_obj.intersection_cache[data.placemarks[distances[index][1]].coordinates[1]][data.placemarks[distances[index][1]].coordinates[0]] = {street1: intersection.intersection.street1, street2: intersection.intersection.street2, accessed: new Date()};
+										}
+		      				}
+		      			});
+		      		}
+	      				
+	      			c2g_obj.vehicles.push([location, distances[index][0]]);
+
+					  });		
+	      	}
 				
 			}		
