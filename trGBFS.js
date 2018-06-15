@@ -216,15 +216,17 @@ function trGBFS(options) {
 			success: function(intersection) {
 				if (intersection != undefined && intersection.intersection != undefined) {
 				  var location = gbfs_obj.address_cache[this.lat][this.lon].base_address;
-  		    if (location.indexOf(intersection.intersection.street1) != -1) {
-  					// street1 is part of address
-  					location = location + " (near "+intersection.intersection.street2+")";
-  				} else if (location.indexOf(intersection.intersection.street2) != -1) {
-  					location = location + " (near "+intersection.intersection.street1+")";
-  				} else {
-  					location = location + " ("+intersection.intersection.street1+" and "+intersection.intersection.street2+")";
+				  if (typeof location === "string") {
+    		    if (location.indexOf(intersection.intersection.street1) != -1) {
+    					// street1 is part of address
+    					location = location + " (near "+intersection.intersection.street2+")";
+    				} else if (location.indexOf(intersection.intersection.street2) != -1) {
+    					location = location + " (near "+intersection.intersection.street1+")";
+    				} else {
+    					location = location + " ("+intersection.intersection.street1+" and "+intersection.intersection.street2+")";
+    				}
+  				  gbfs_obj.address_cache[this.lat][this.lon].intersection_address = location;
   				}
-				  gbfs_obj.address_cache[this.lat][this.lon].intersection_address = location;
 				}
 			}
 		});
