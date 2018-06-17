@@ -191,7 +191,7 @@ function trGBFS(options) {
       } else {
         //console.log("Address match");
         address = gbfs_obj.address_cache[free_bikes[i].lat][free_bikes[i].lon];
-        if (address.intersection_address != undefined) {
+        if (typeof address.intersection_address !== "undefined") {
           free_bikes[i].address = address.intersection_address;
         } else {
           free_bikes[i].address = address.base_address;
