@@ -181,12 +181,14 @@ function trGBFS(options) {
   				context: free_bikes[i],
   				dataType: 'jsonp',
   				success: function(address) {
-  				  if (gbfs_obj.address_cache[this.lat] == undefined) {
-  				    gbfs_obj.address_cache[this.lat] = {};
-  				  }
-  				  gbfs_obj.address_cache[this.lat][this.lon] = {};
-  				  gbfs_obj.address_cache[this.lat][this.lon].base_address = address.address.streetNumber+" "+address.address.street;
-  				}
+  				  if (typeof address.address !== "undefined") {
+    				  if (typeof gbfs_obj.address_cache[this.lat] === "undefined") {
+    				    gbfs_obj.address_cache[this.lat] = {};
+    				  }
+    				  gbfs_obj.address_cache[this.lat][this.lon] = {};
+    				  gbfs_obj.address_cache[this.lat][this.lon].base_address = address.address.streetNumber+" "+address.address.street;
+    				}
+    			}
   			});
       } else {
         //console.log("Address match");
