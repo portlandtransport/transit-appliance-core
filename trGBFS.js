@@ -17,6 +17,7 @@ function trGBFS(options) {
 	this.loc = options.loc;
 	this.num_locations = options.num_locations || 2;
 	this.include_free_bikes = options.include_free_bikes;
+	this.include_free_bikes = 1; // force it everywhere
 	
 	//console.log(gbfs_obj);
 	
