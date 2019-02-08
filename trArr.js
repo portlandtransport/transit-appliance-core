@@ -558,14 +558,14 @@ function trArr(input_params) {
 							
 							jQuery.ajax({
 									dataType: access_method,
-									url: "http://ta-web-services.com/cgi-bin/health_update.pl",
+									url: "http://ta-web-services.com/health_update.php",
 									data: { timestamp: arrivals_object.start_time, start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width(), "platform": platform }
 							});
 							
 							// logging of startup, beat every 30 minutes goes here
 							setInterval(function(){
 								jQuery.ajax({
-										url: "http://ta-web-services.com/cgi-bin/health_update.pl",
+										url: "http://ta-web-services.com/health_update.php",
 										dataType: access_method,
 			  						cache: false,
 										data: { timestamp: ((new Date)).getTime(), start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width(), "platform": platform },
