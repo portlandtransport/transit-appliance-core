@@ -50,7 +50,7 @@ function trArrPCCUpdater(service_requests,arrivals_object) {
 	// get schedule limits
 	function trArrServicePCCGetScheduleLimits() {
 		jQuery.ajax({
-		  url: "http://shuttle.pcc.edu/Services/JSONPRelay.svc/GetRouteScheduleTimes?APIKey=8882812681",
+		  url: "http://shuttle.pcc.ridesystems.net/Services/JSONPRelay.svc/GetRouteScheduleTimes?APIKey=8882812681",
 		  dataType: updater.access_method,
 		  cache: false,
 		  jsonp: "method",
