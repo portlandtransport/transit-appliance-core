@@ -145,8 +145,8 @@ function trGBFS(options) {
 		for (var i = 0; i < gbfs_obj.stations.length; i++) {
 			var status = status_obj[gbfs_obj.stations[i].station_id];
 			if (typeof status === 'object') {
-				if (status.num_bikes_available > 0 && status.is_renting == 1) {
-					locations.push({ "station_id": gbfs_obj.stations[i].station_id, "distance": gbfs_obj.stations[i].distance, "formatted_distance": gbfs_obj.format_distance(gbfs_obj.stations[i].distance), "name": gbfs_obj.stations[i].name, "num_bikes_available": status.num_bikes_available, "last_reported": status.last_reported, "location_type": "station" });
+				if (status.num_ebikes_available > 0 && status.is_renting == 1) {
+					locations.push({ "station_id": gbfs_obj.stations[i].station_id, "distance": gbfs_obj.stations[i].distance, "formatted_distance": gbfs_obj.format_distance(gbfs_obj.stations[i].distance), "name": gbfs_obj.stations[i].name, "num_bikes_available": status.num_ebikes_available, "last_reported": status.last_reported, "location_type": "station" });
 				}
 			}
 		}
@@ -158,8 +158,11 @@ function trGBFS(options) {
 	  var locations = [];
 		var free_bikes = [];
 		for (var i = 0; i < data.data.bikes.length; i++) {
+		  data.data.bikes[i].lon = data.data.bikes[i].lon.toPrecision(6);
+		  data.data.bikes[i].lat = data.data.bikes[i].lat.toPrecision(6);
 		  if (data.data.bikes[i].is_reserved == 0 && data.data.bikes[i].is_disabled == 0) {
   		  data.data.bikes[i].distance = gbfs_obj.distance([data.data.bikes[i].lon,data.data.bikes[i].lat]);
+  		  //console.log(data.data.bikes[i].distance);
   		  data.data.bikes[i].formatted_distance = gbfs_obj.format_distance(data.data.bikes[i].distance);
   		  data.data.bikes[i].num_bikes_available = 1;
   		  free_bikes.push(data.data.bikes[i]);;
@@ -177,6 +180,8 @@ function trGBFS(options) {
 		// check addresses
 		for (var i = 0; i < free_bikes.length; i++) {
 		  if (gbfs_obj.address_cache[free_bikes[i].lat] == undefined || gbfs_obj.address_cache[free_bikes[i].lat][free_bikes[i].lon] == undefined) {
+		    //console.log("Address miss");
+		    
 		    jQuery.ajax({
   				url: "http://api.geonames.org/findNearestAddressJSON?lat="+free_bikes[i].lat+"&lng="+free_bikes[i].lon+"&username=transitappliance",
   				context: free_bikes[i],
@@ -191,19 +196,19 @@ function trGBFS(options) {
     				}
     			}
   			});
-      } else {
-        //console.log("Address match");
-        address = gbfs_obj.address_cache[free_bikes[i].lat][free_bikes[i].lon];
-        if (typeof address.intersection_address !== "undefined") {
-          free_bikes[i].address = address.intersection_address;
-        } else {
-          free_bikes[i].address = address.base_address;
-          gbfs_obj.get_intersection(free_bikes[i]);
-        }
-        free_bikes[i].location_type = 'free';
-        free_bikes[i].name = free_bikes[i].address;
-        locations.push(free_bikes[i]);
-      }
+          } else {
+            //console.log("Address match");
+            address = gbfs_obj.address_cache[free_bikes[i].lat][free_bikes[i].lon];
+            if (typeof address.intersection_address !== "undefined") {
+              free_bikes[i].address = address.intersection_address;
+            } else {
+              free_bikes[i].address = address.base_address;
+              gbfs_obj.get_intersection(free_bikes[i]);
+            }
+            free_bikes[i].location_type = 'free';
+            free_bikes[i].name = free_bikes[i].address;
+            locations.push(free_bikes[i]);
+          }
 		}
 		
 		//console.table(locations);
@@ -284,7 +289,8 @@ function trGBFS(options) {
 	
 	/* initializations */
 	
-	this.gbfs_feed = "http://biketownpdx.socialbicycles.com/opendata/gbfs.json";
+	//this.gbfs_feed = "http://biketownpdx.socialbicycles.com/opendata/gbfs.json";
+	this.gbfs_feed = "http://gbfs.biketownpdx.com/gbfs/gbfs.json";
 	this.gbfs_feed_retry_period = 5*60*1000; // start at 5 minutes, double on each retry
 	
 	
