@@ -32,6 +32,31 @@ function trAgencyCache() {
 	
 	this.cache = {}; // our cache element
 	
+	// precache most popular items
+	this.cache['TriMet'] = {
+        "rights_notice": "Route and arrival data provided by permission of TriMet.",
+        "_id": "TriMet",
+        "agency_name": "TriMet",
+        "agency_url": "http://trimet.org",
+        "agency_timezone": "America/Los_Angeles",
+        "avl_agency_id": "portland-sc",
+        "doc_type": "Document",
+        "avl_service": "TriMet",
+        "agency_lang": "en"
+	};
+	
+	this.cache['PCC'] = {
+        "rights_notice": "",
+        "_id": "PCC",
+        "agency_name": "PCC",
+        "agency_url": "http://www.pcc.edu/resources/parking/shuttle/",
+        "agency_timezone": "America/Los_Angeles",
+        "avl_agency_id": "PCC",
+        "doc_type": "Document",
+        "avl_service": "PCC",
+        "agency_lang": "en"
+	};
+	
 	this.addToCache = function(agency,data) {
 		this.cache[agency] = data;
 	}
@@ -54,40 +79,46 @@ function trAgencyCache() {
 			service_url = alternate_url;
 		}
 
-		trArrLog("Loading info for "+agency+"<br>");
-		jQuery.when(jQuery.ajax({
-	    type: "GET",
-			url: service_url,
-			timeout: 2000,
-			dataType: "json",
-			success: function(data) {
-				trAgencyCache.instance.addToCache(agency,data);
-				trArrLog("success<br>");
-			},
-			error: function(jqXHR, textStatus, errorThrown){
-				trArrLog("<font color='red'>error</font><br>");
-			}				
-		})).done(function(data) {
-			next_agency = trAgencyCache().nextUncachedAgency(stop_config);
-			if (next_agency == undefined) {
-				// ran out of stops
-				trArrLog("Agency cache built.<br><br>");
-				callback(arrivals_object);
-			} else {
-				// recursively get the next item
-				trAgencyCache().getCacheItem(arrivals_object,stop_config,next_agency,callback);
-			}
-		}).fail(function(data) {
-			next_agency = trAgencyCache().nextUncachedAgency(stop_config);
-			if (next_agency == undefined) {
-				// ran out of stops
-				trArrLog("Agency cache built.<br><br>");
-				callback(arrivals_object);
-			} else {
-				// recursively get the next item
-				trAgencyCache().getCacheItem(arrivals_object,stop_config,next_agency,callback);
-			}
-		});
+        if (trAgencyCache().nextUncachedAgency(stop_config) !== undefined) {
+    		trArrLog("Loading info for "+agency+"<br>");
+    		jQuery.when(jQuery.ajax({
+    	    type: "GET",
+    			url: service_url,
+    			timeout: 2000,
+    			dataType: "json",
+    			success: function(data) {
+    				trAgencyCache.instance.addToCache(agency,data);
+    				trArrLog("success<br>");
+    			},
+    			error: function(jqXHR, textStatus, errorThrown){
+    				trArrLog("<font color='red'>error</font><br>");
+    			}				
+    		})).done(function(data) {
+    			next_agency = trAgencyCache().nextUncachedAgency(stop_config);
+    			if (next_agency == undefined) {
+    				// ran out of stops
+    				trArrLog("Agency cache built.<br><br>");
+    				callback(arrivals_object);
+    			} else {
+    				// recursively get the next item
+    				trAgencyCache().getCacheItem(arrivals_object,stop_config,next_agency,callback);
+    			}
+    		}).fail(function(data) {
+    			next_agency = trAgencyCache().nextUncachedAgency(stop_config);
+    			if (next_agency == undefined) {
+    				// ran out of stops
+    				trArrLog("Agency cache built.<br><br>");
+    				callback(arrivals_object);
+    			} else {
+    				// recursively get the next item
+    				trAgencyCache().getCacheItem(arrivals_object,stop_config,next_agency,callback);
+    			}
+    		});
+    	} else {
+    	    trArrLog("Relying on pre-cached agencies.<br><br>");
+    	    callback(arrivals_object);
+    	}
+
 	}
 
 	
