@@ -63,7 +63,7 @@
 					var weather_url = "https://api.darksky.net/forecast/"+weather.api_key+"/"+options.lat+","+options.lng;
 					
 					if (location.search.match("weatherproxy") !== null) {
-						weather_url = "http://transitappliance.com/cgi-bin/weather_proxy.pl?key="+weather.api_key+"&lat="+options.lat+"&lng="+options.lng;
+						weather_url = "//transitappliance.com/cgi-bin/weather_proxy.pl?key="+weather.api_key+"&lat="+options.lat+"&lng="+options.lng;
 					}
 	
 		      jQuery.ajax({
@@ -75,6 +75,11 @@
 								weather.temperature = Math.floor(data.currently.temperature + 0.5)+"&deg;";
 								weather.icon = data.minutely.icon;
 								weather.timestamp = new Date();
+							} else if (data.currently) {
+								weather.summary = data.currently.summary;
+								weather.temperature = Math.floor(data.currently.temperature + 0.5)+"&deg;";
+								weather.icon = data.currently.icon;
+								weather.timestamp = new Date();
 							}
 						}
 
@@ -83,7 +88,7 @@
 				
 				this.get_api_key = function() {
 		      jQuery.ajax({
-						url: "http://transitappliance.com/cgi-bin/get_weather_key.pl?id="+options.id,
+						url: "//transitappliance.com/cgi-bin/get_weather_key.pl?id="+options.id,
 						dataType: "json",
 
 						success: function(data){
