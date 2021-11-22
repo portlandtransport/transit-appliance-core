@@ -183,7 +183,7 @@ function trGBFS(options) {
 		    //console.log("Address miss");
 		    
 		    jQuery.ajax({
-  				url: "http://api.geonames.org/findNearestAddressJSON?lat="+free_bikes[i].lat+"&lng="+free_bikes[i].lon+"&username=transitappliance",
+  				url: gbfs_obj.geonames_server+"/findNearestAddressJSON?lat="+free_bikes[i].lat+"&lng="+free_bikes[i].lon+"&username=transitappliance",
   				context: free_bikes[i],
   				dataType: 'jsonp',
   				success: function(address) {
@@ -218,7 +218,7 @@ function trGBFS(options) {
 	
 	this.get_intersection = function(bike) {
   	jQuery.ajax({
-			url: "http://api.geonames.org/findNearestIntersectionJSON?lat="+bike.lat+"&lng="+bike.lon+"&username=transitappliance",
+			url: gbfs_obj.geonames_server+"/findNearestIntersectionJSON?lat="+bike.lat+"&lng="+bike.lon+"&username=transitappliance",
 			context: bike,
 			dataType: 'jsonp',
 			success: function(intersection) {
@@ -290,7 +290,7 @@ function trGBFS(options) {
 	/* initializations */
 	
 	//this.gbfs_feed = "http://biketownpdx.socialbicycles.com/opendata/gbfs.json";
-	this.gbfs_feed = "http://gbfs.biketownpdx.com/gbfs/gbfs.json";
+	this.gbfs_feed = "//gbfs.biketownpdx.com/gbfs/gbfs.json";
 	this.gbfs_feed_retry_period = 5*60*1000; // start at 5 minutes, double on each retry
 	
 	
@@ -316,6 +316,10 @@ function trGBFS(options) {
 	initialize_feeds();
 		
 	function initialize_gbfs(data) {
+	    gbfs_obj.geonames_server = "http://api.geonames.org";
+	    if (document.location.protocol == 'https:') {
+	        gbfs_obj.geonames_server = "https://secure.geonames.org";
+	    }
 		gbfs_obj.feeds_object = {};
 		gbfs_obj.free_bikes =[];
 		var feeds_array = data.data.en.feeds;
