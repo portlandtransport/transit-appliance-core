@@ -68,6 +68,11 @@ function trStopCache() {
 		
 		var service_url = "http://stops4.transitappliance.com/stop/"+stop.agency+":"+stop.stop_id;
 		var alternate_url = "http://stops3.transitappliance.com/stop/"+stop.agency+":"+stop.stop_id;
+		
+		if (document.location.protocol == 'https:') {
+    		service_url = "https://stops6.transitappliance.com/stop/"+stop.agency+":"+stop.stop_id;
+    		alternate_url = "https://stops7.transitappliance.com/stop/"+stop.agency+":"+stop.stop_id;  
+		}
 
 		if (Math.random() > 0.5) {
 			service_url = alternate_url;
