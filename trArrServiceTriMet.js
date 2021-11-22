@@ -72,7 +72,7 @@ function trArrTriMetUpdater(service_requests,arrivals_object) {
 		}
 	}
 	var stop_string = stop_id_list.join(',');
-	this.url = "http://developer.trimet.org/ws/V1/arrivals/?locIDs="+stop_string+"&appID=828B87D6ABC0A9DF142696F76&json=true&streetcar=true";
+	this.url = "//developer.trimet.org/ws/V1/arrivals/?locIDs="+stop_string+"&appID=828B87D6ABC0A9DF142696F76&json=true&streetcar=true";
 	
 	// functions that will be polled by the arrivals object
 	this.arrivals = function() {
