@@ -1,5 +1,5 @@
 /*
-   Copyright 2010-2013 Portland Transport
+   Copyright 2010-2021 Portland Transport
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -257,11 +257,12 @@ function trArr(input_params) {
 		jQuery('body').prepend('<div id="arrivals_log_area"></div>');
 	}
 	
-	this.version = "1.16";
+	this.version = "1.17";
 	// v1.13 - first introduction of jquery.jsonp in TriMet service
 	// v1.14 - move health_update to ta-web-services
 	// v1.15 - add clock drift check back in
 	// v1.16 - pass platform and user agent on health_update
+	// v1.17 - hooks for working with https
 	this.assets_dir = input_params.assetsDir || "assets";
 	
 	timezoneJS.timezone.zoneFileBasePath = this.assets_dir + "/tz";
@@ -325,7 +326,7 @@ function trArr(input_params) {
 			if(typeof trLoader == 'function') {
 				trLoader(this.id);
 			} else {
-				window.location = "http://transitappliance.com/cgi-bin/launch_by_id.pl?id="+this.id;
+				window.location = "//transitappliance.com/cgi-bin/launch_by_id.pl?id="+this.id;
 			}
 		} else {
 			window.location.reload(true);
@@ -428,16 +429,16 @@ function trArr(input_params) {
 	this.mergeArrivals = function() {
 		var now = new Date();
 		now = now.getTime(); //milliseconds since epoch	
-	        var arrivals = new arrivalsQueue();
-  	for (var i = 0; i < this.updater_array.length; i++) {
-  		var updater_arrivals = this.updater_array[i].arrivals();
-  		for (var j = 0; j < updater_arrivals.length; j++) {
-				var milliseconds_until_arrival = updater_arrivals[j].arrivalTime - now;
-				if (milliseconds_until_arrival >= 0) {
-  				arrivals.push(updater_arrivals[j]);
-  			}
-  		}
-  	}
+	    var arrivals = new arrivalsQueue();
+        for (var i = 0; i < this.updater_array.length; i++) {
+        	var updater_arrivals = this.updater_array[i].arrivals();
+        	for (var j = 0; j < updater_arrivals.length; j++) {
+        			var milliseconds_until_arrival = updater_arrivals[j].arrivalTime - now;
+        			if (milliseconds_until_arrival >= 0) {
+        			arrivals.push(updater_arrivals[j]);
+        		}
+        	}
+        }
   	  	
 		// sort the rows by arrival time
 		function trArrCompareArrivals(a,b) {
@@ -567,7 +568,7 @@ function trArr(input_params) {
 								jQuery.ajax({
 										url: "//ta-web-services.com/health_update.php",
 										dataType: access_method,
-			  						cache: false,
+			  						    cache: false,
 										data: { timestamp: ((new Date)).getTime(), start_time: arrivals_object.start_time, version: arrivals_object.version, id: arrivals_object.id, application_id: arrivals_object.input_params.applicationId, application_name: arrivals_object.input_params.applicationName, application_version: arrivals_object.input_params.applicationVersion, "height": jQuery(window).height(), "width": jQuery(window).width(), "platform": platform },
 										success: function(data) {
 											if( typeof data != "undefined" && data.reset == true ) {
